@@ -8,6 +8,16 @@ public class AccountUtils {
 	public static final String ACCOUNT_EXISTS_MESSAGE = "This user already has an Account";
 	public static final String ACCOUNT_CREATION_CODE = "002";
 	public static final String ACCOUNT_CREATION_MESSAGE = "Account created successfully";
+	public static final String ACCOUNT_NOT_EXISTS_CODE = "003";
+	public static final String ACCOUNT_NOT_EXISTS_MESSAGE = "User with the provided Account Number does not exists";
+	public static final String ACCOUNT_FOUND_CODE = "004";
+	public static final String ACCOUNT_FOUND_MESSAGE = "User Account Found";
+	public static final String ACCOUNT_CREDITED_SUCCESS_CODE = "005";
+	public static final String ACCOUNT_CREDITED_SUCCESS_MESSAGE = "Account credited successfully";
+	public static final String INSUFFICIENT_BALANCE_CODE = "006";
+	public static final String INSUFFICIENT_BALANCE_MESSAGE = "Insufficent Balance";
+	public static final String ACCOUNT_DEBITED_SUCCESS_CODE = "007";
+	public static final String ACCOUNT_DEBITED_SUCCESS_MESSAGE = "Account Debited successfully";
 	
 	public static String generateAccountNumber() {
 		/**
