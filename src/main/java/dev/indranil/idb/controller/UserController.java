@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import dev.indranil.idb.dto.BankResponse;
 import dev.indranil.idb.dto.CreditDebitRequest;
 import dev.indranil.idb.dto.EnquiryRequest;
+import dev.indranil.idb.dto.TransferRequest;
 import dev.indranil.idb.dto.UserRequest;
 import dev.indranil.idb.service.UserService;
 
@@ -43,5 +44,10 @@ public class UserController {
 	@PostMapping("/debit")
 	public BankResponse debitAccount(@RequestBody CreditDebitRequest request) {
 		return userService.debitAccount(request);
+	}
+	
+	@PostMapping("/transfer")
+	public BankResponse transfer(@RequestBody TransferRequest request) {
+		return userService.transfer(request);
 	}
 }
