@@ -13,6 +13,8 @@ import dev.indranil.idb.dto.EnquiryRequest;
 import dev.indranil.idb.dto.TransferRequest;
 import dev.indranil.idb.dto.UserRequest;
 import dev.indranil.idb.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 @RestController
 @RequestMapping("/api/user")
@@ -22,11 +24,27 @@ public class UserController {
 	UserService userService;
 	
 	@PostMapping
+	@Operation(
+			summary = "Create New User Account",
+			description = "Creating new user account and assigning a new accountid"
+			)
+	@ApiResponse(
+			responseCode = "201",
+			description = "Http status 201 CREATED"
+			)
 	public BankResponse createAccount(@RequestBody UserRequest userRequest) {
 		return userService.createAccount(userRequest);
 	}
 	
 	@GetMapping("/balanceEnquiry")
+	@Operation(
+			summary = "Balance Enquiry",
+			description = "Get Balance equiry for account"
+			)
+	@ApiResponse(
+			responseCode = "200",
+			description = "Http status 200 SUCCESS"
+			)
 	public BankResponse balanceEnquiry(@RequestBody EnquiryRequest request) {
 		return userService.balanceEnquiry(request);
 	}

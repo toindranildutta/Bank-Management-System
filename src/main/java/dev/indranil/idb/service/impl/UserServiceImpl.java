@@ -10,16 +10,21 @@ import dev.indranil.idb.dto.BankResponse;
 import dev.indranil.idb.dto.CreditDebitRequest;
 import dev.indranil.idb.dto.EmailDetails;
 import dev.indranil.idb.dto.EnquiryRequest;
+import dev.indranil.idb.dto.TransactionDto;
 import dev.indranil.idb.dto.TransferRequest;
 import dev.indranil.idb.dto.UserRequest;
 import dev.indranil.idb.entity.User;
 import dev.indranil.idb.repository.UserRepository;
 import dev.indranil.idb.service.EmailService;
+import dev.indranil.idb.service.TransactionalService;
 import dev.indranil.idb.service.UserService;
 import dev.indranil.idb.utils.AccountUtils;
 
 @Service
 public class UserServiceImpl implements UserService {
+	
+	@Autowired
+	TransactionalService transactionalService;
 
 	@Autowired
 	UserRepository userRepository;
@@ -131,6 +136,16 @@ public class UserServiceImpl implements UserService {
 		userToCredit.setAccountBalance(userToCredit.getAccountBalance().add(request.getAmount()));
 		userRepository.save(userToCredit);
 		
+	// Save Transaction
+		
+		TransactionDto transactionDto = TransactionDto.builder()
+				.accountNumber(userToCredit.getAccountNumber())
+				.transactionType("CREDIT")
+				.amount(request.getAmount())
+				.build();
+		
+		transactionalService.saveTransaction(transactionDto);
+		
 		return BankResponse.builder()
 				.responseCode(AccountUtils.ACCOUNT_CREDITED_SUCCESS_CODE)
 				.responseMessage(AccountUtils.ACCOUNT_CREDITED_SUCCESS_MESSAGE)
@@ -165,6 +180,15 @@ public class UserServiceImpl implements UserService {
 		}
 			userToDebit.setAccountBalance(userToDebit.getAccountBalance().subtract(request.getAmount()));
 			userRepository.save(userToDebit);
+			// Save Transaction
+			
+			TransactionDto transactionDto = TransactionDto.builder()
+					.accountNumber(userToDebit.getAccountNumber())
+					.transactionType("CREDIT")
+					.amount(request.getAmount())
+					.build();
+			
+			transactionalService.saveTransaction(transactionDto);
 			return BankResponse.builder()
 					.responseCode(AccountUtils.ACCOUNT_DEBITED_SUCCESS_CODE)
 					.responseMessage(AccountUtils.ACCOUNT_DEBITED_SUCCESS_MESSAGE)
@@ -219,6 +243,16 @@ public class UserServiceImpl implements UserService {
 				.messageBody("The Sum of " + request.getAmount() + " has been credited to your account! Your Current Balance is " + destinationAccountUser.getAccountBalance())
 				.build();
 		emailService.sendEmailAlert(creditAlert);
+		
+		// Save Transaction
+		
+				TransactionDto transactionDto = TransactionDto.builder()
+						.accountNumber(destinationAccountUser.getAccountNumber())
+						.transactionType("CREDIT")
+						.amount(request.getAmount())
+						.build();
+				
+				transactionalService.saveTransaction(transactionDto);
 		
 		return BankResponse.builder()
 				.responseCode(AccountUtils.TRANSFER_SUCCESS_CODE)
