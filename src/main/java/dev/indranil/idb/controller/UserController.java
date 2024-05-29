@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 import dev.indranil.idb.dto.BankResponse;
 import dev.indranil.idb.dto.CreditDebitRequest;
 import dev.indranil.idb.dto.EnquiryRequest;
+import dev.indranil.idb.dto.LoginDto;
 import dev.indranil.idb.dto.TransferRequest;
 import dev.indranil.idb.dto.UserRequest;
 import dev.indranil.idb.service.UserService;
+import dev.indranil.idb.service.impl.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
@@ -34,6 +36,11 @@ public class UserController {
 			)
 	public BankResponse createAccount(@RequestBody UserRequest userRequest) {
 		return userService.createAccount(userRequest);
+	}
+	
+	@PostMapping("/login")
+	public BankResponse login(@RequestBody LoginDto loginDto) {
+		return userService.login(loginDto);
 	}
 	
 	@GetMapping("/balanceEnquiry")

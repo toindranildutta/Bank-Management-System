@@ -3,16 +3,23 @@ package dev.indranil.idb.service.impl;
 import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import dev.indranil.idb.config.JwtTokenProvider;
 import dev.indranil.idb.dto.AccountInfo;
 import dev.indranil.idb.dto.BankResponse;
 import dev.indranil.idb.dto.CreditDebitRequest;
 import dev.indranil.idb.dto.EmailDetails;
 import dev.indranil.idb.dto.EnquiryRequest;
+import dev.indranil.idb.dto.LoginDto;
 import dev.indranil.idb.dto.TransactionDto;
 import dev.indranil.idb.dto.TransferRequest;
 import dev.indranil.idb.dto.UserRequest;
+import dev.indranil.idb.entity.Role;
 import dev.indranil.idb.entity.User;
 import dev.indranil.idb.repository.UserRepository;
 import dev.indranil.idb.service.EmailService;
@@ -31,6 +38,15 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	EmailService emailService;
+	
+	@Autowired
+	PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	AuthenticationManager authenticationManager;
+	
+	@Autowired
+	JwtTokenProvider jwtTokenProvider;
 
 	/**
 	 * Create an account - save the new user in db check if user already have an
@@ -56,9 +72,13 @@ public class UserServiceImpl implements UserService {
 				.accountNumber(AccountUtils.generateAccountNumber())
 				.accountBalance(BigDecimal.ZERO)
 				.email(userRequest.getEmail())
+				.password(passwordEncoder.encode(userRequest.getPassword()))
 				.phoneNumber(userRequest.getPhoneNumber())
 				.alternativePhoneNumber(userRequest.getAlternativePhoneNumber())
-				.status("ACTIVE").build();
+				.status("ACTIVE")
+				.role(Role.valueOf("ROLE_ADMIN"))
+				.build();
+				
 		
 		User savedUser = userRepository.save(newuser);
 		
@@ -81,6 +101,24 @@ public class UserServiceImpl implements UserService {
 						.accountBalance(savedUser.getAccountBalance())
 						.accountNumber(savedUser.getAccountNumber())
 						.build())
+				.build();
+	}
+	
+	public BankResponse login(LoginDto loginDto) {
+		
+		Authentication authentication = authenticationManager.authenticate(
+				new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
+					);
+		EmailDetails loginAlert = EmailDetails.builder()
+								.subject("You are Logged In!")
+								.recipient(loginDto.getEmail())
+								.messageBody("You are logged in to your account. If you didn't Logged In, contact your bank immedietly!")
+								.build();
+		emailService.sendEmailAlert(loginAlert);
+		
+		return BankResponse.builder()
+				.responseCode("Login Success")
+				.responseMessage(jwtTokenProvider.generateToken(authentication))
 				.build();
 	}
 
